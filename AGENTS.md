@@ -1,18 +1,34 @@
 # Base44 Dev Environment
 
 ## Project Overview
-This is a **Java console application** — a simple vehicle rental system. There is no web server, database, or external dependencies. The app compiles `.java` files in `src/` and runs `Main`, which prints rental activity to stdout.
+A **Spring Boot (Java 21) web application** for vehicle rental management, backed by **PostgreSQL**.
+The browser UI (served by Spring Boot as static assets) talks to a REST API under `/api/**`.
+
+Features: customer management, vehicle fleet management, rent/return tracking, and billing/reporting
+(revenue per vehicle, overdue rentals, summary stats).
+
+## Architecture
+- `pom.xml` — Maven build, Spring Boot 3.3.x parent, Java 21, Lombok.
+- `src/main/java/com/rental/`
+  - `model/` — JPA entities: `Customer`, `Vehicle`, `Rental`.
+  - `repository/` — Spring Data JPA repositories.
+  - `service/RentalService.java` — rent/return logic and billing (late days billed at 1.5x the daily rate).
+  - `controller/` — REST controllers (`/api/customers`, `/api/vehicles`, `/api/rentals`, `/api/reports`) plus a `GlobalExceptionHandler`.
+  - `config/DataSeeder.java` — seeds a small demo dataset on first start (only when the DB is empty).
+- `src/main/resources/application.properties` — port 3000, datasource from `SPRING_DATASOURCE_*` env vars.
+- `src/main/resources/static/` — the frontend (`index.html`, `app.js`, `styles.css`), served directly from the source tree during dev.
 
 ## How It Runs Here
-Since the preview expects a web server on port 3000, the setup compiles and runs the Java program, captures stdout, and serves it as an HTML page:
-- `Dockerfile.base44` — based on `eclipse-temurin:22-jdk`, adds `python3` and `inotify-tools`.
-- `base44-serve.sh` — compiles `src/*.java`, runs `Main`, captures output to `/tmp/output.txt`, then serves it via a Python HTTP server on port 3000. A background `inotifywait` watcher recompiles and re-runs on source changes.
-- `docker-compose.base44.yml` — builds the image, bind-mounts the repo at `/app`, runs the serve script.
+- `docker-compose.base44.yml` starts `db` (Postgres 16) and `app`.
+- `app` builds from `Dockerfile.base44` (Maven + Temurin 21), bind-mounts the repo at `/app`,
+  caches Maven deps in the `m2-cache` volume, and runs `mvn spring-boot:run` on port 3000.
+- Schema is created/updated by Hibernate (`spring.jpa.hibernate.ddl-auto=update`).
 
 ## Verification
-- `docker compose -f docker-compose.base44.yml up -d --build` starts the service.
-- Curl `http://localhost:3000` returns an HTML page with the program output.
-- Edit any `.java` file in `src/` and the watcher recompiles; refresh the preview to see new output.
+- `docker compose -f docker-compose.base44.yml up -d --build` starts both services; `app` becomes `healthy`.
+- `curl http://localhost:3000/api/vehicles` returns JSON; `curl http://localhost:3000/` returns the UI.
+- First start is slow (Maven downloads dependencies); the healthcheck allows a 240s start period.
 
 ## No Secrets Required
-This project has no external service dependencies. No credentials are needed.
+The Postgres credentials are local development values wired through compose `environment:`.
+No external service credentials are needed.

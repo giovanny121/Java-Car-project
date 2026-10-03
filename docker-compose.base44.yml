@@ -1,17 +1,45 @@
 services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_DB: carrental
+      POSTGRES_USER: carrental
+      POSTGRES_PASSWORD: carrental
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U carrental -d carrental"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: on-failure
+
   app:
     build:
       context: .
       dockerfile: Dockerfile.base44
+    working_dir: /app
     volumes:
       - .:/app
+      - m2-cache:/root/.m2
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/carrental
+      SPRING_DATASOURCE_USERNAME: carrental
+      SPRING_DATASOURCE_PASSWORD: carrental
     ports:
       - "3000:3000"
-    command: ["sh", "/app/base44-serve.sh"]
+    depends_on:
+      db:
+        condition: service_healthy
+    command: ["sh", "-ec", "mvn -q -DskipTests spring-boot:run"]
     restart: on-failure
     healthcheck:
-      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000').read()"]
+      test: ["CMD", "curl", "-fsS", "http://localhost:3000/"]
       interval: 10s
       timeout: 5s
-      retries: 3
-      start_period: 20s
+      retries: 5
+      start_period: 240s
+
+volumes:
+  db-data:
+  m2-cache:

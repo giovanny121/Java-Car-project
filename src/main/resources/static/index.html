@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Car Rental Management</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo">&#128663;</span>
+    <h1>Car Rental Management</h1>
+  </div>
+  <nav id="tabs">
+    <button class="tab active" data-tab="dashboard">Dashboard</button>
+    <button class="tab" data-tab="customers">Customers</button>
+    <button class="tab" data-tab="vehicles">Vehicles</button>
+    <button class="tab" data-tab="rentals">Rentals</button>
+  </nav>
+</header>
+
+<main>
+  <!-- Dashboard -->
+  <section id="dashboard" class="panel active">
+    <div id="summaryCards" class="cards"></div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Revenue by vehicle</h2>
+        <table>
+          <thead>
+            <tr><th>Plate</th><th>Type</th><th>Rentals</th><th class="num">Revenue</th></tr>
+          </thead>
+          <tbody id="revenueTable"></tbody>
+        </table>
+      </div>
+      <div class="card">
+        <h2>Overdue rentals</h2>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>Vehicle</th><th>Due</th></tr>
+          </thead>
+          <tbody id="overdueTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Customers -->
+  <section id="customers" class="panel">
+    <div class="grid-2">
+      <div class="card">
+        <h2 id="customerFormTitle">Add customer</h2>
+        <form id="customerForm" class="form">
+          <input type="hidden" name="id">
+          <label>Name <input name="name" required maxlength="80"></label>
+          <label>Age <input name="age" type="number" min="0" max="120" required></label>
+          <label>Email <input name="email" type="email" maxlength="120"></label>
+          <label>Phone <input name="phone" maxlength="40"></label>
+          <label>License no. <input name="licenseNumber" maxlength="40"></label>
+          <div class="actions">
+            <button type="submit" class="primary">Save customer</button>
+            <button type="button" class="ghost" id="customerReset">Clear</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Customers</h2>
+        <table>
+          <thead>
+            <tr><th>Name</th><th>Age</th><th>Email</th><th>Phone</th><th>License</th><th></th></tr>
+          </thead>
+          <tbody id="customersTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Vehicles -->
+  <section id="vehicles" class="panel">
+    <div class="grid-2">
+      <div class="card">
+        <h2 id="vehicleFormTitle">Add vehicle</h2>
+        <form id="vehicleForm" class="form">
+          <input type="hidden" name="id">
+          <label>License plate <input name="licensePlate" required maxlength="20"></label>
+          <label>Type
+            <select name="vehicleType" required>
+              <option value="CAR">Car</option>
+              <option value="MOTORCYCLE">Motorcycle</option>
+            </select>
+          </label>
+          <label>Category <input name="category" placeholder="Sedan, SUV, SportBike…" maxlength="40"></label>
+          <label>Price / day <input name="rentalPricePerDay" type="number" step="0.01" min="0" required></label>
+          <div class="actions">
+            <button type="submit" class="primary">Save vehicle</button>
+            <button type="button" class="ghost" id="vehicleReset">Clear</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Fleet</h2>
+        <table>
+          <thead>
+            <tr><th>Plate</th><th>Type</th><th>Category</th><th class="num">Price/day</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="vehiclesTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- Rentals -->
+  <section id="rentals" class="panel">
+    <div class="grid-2">
+      <div class="card">
+        <h2>Rent a vehicle</h2>
+        <form id="rentalForm" class="form">
+          <label>Customer <select name="customerId" required></select></label>
+          <label>Available vehicle <select name="vehicleId" required></select></label>
+          <label>Days <input name="days" type="number" min="1" value="3" required></label>
+          <div class="actions">
+            <button type="submit" class="primary">Create rental</button>
+          </div>
+        </form>
+      </div>
+      <div class="card">
+        <h2>Rental history</h2>
+        <table>
+          <thead>
+            <tr><th>Customer</th><th>Vehicle</th><th>Start</th><th>Due</th><th>Returned</th><th class="num">Cost</th><th>Status</th><th></th></tr>
+          </thead>
+          <tbody id="rentalsTable"></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div id="toast" class="toast"></div>
+<script src="app.js"></script>
+</body>
+</html>
