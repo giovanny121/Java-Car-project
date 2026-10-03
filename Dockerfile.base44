@@ -1,0 +1,8 @@
+FROM eclipse-temurin:22-jdk
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    python3 \
+    inotify-tools \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app

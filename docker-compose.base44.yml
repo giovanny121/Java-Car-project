@@ -1,0 +1,17 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.base44
+    volumes:
+      - .:/app
+    ports:
+      - "3000:3000"
+    command: ["sh", "/app/base44-serve.sh"]
+    restart: on-failure
+    healthcheck:
+      test: ["CMD", "python3", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:3000').read()"]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 20s
